@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import {
   ChevronDown,
@@ -19,10 +19,16 @@ interface HorcruxIntroProps {
 
 export const HorcruxIntro: React.FC<HorcruxIntroProps> = ({ onScrollToWizards }) => {
   const sectionRef = useRef<HTMLElement | null>(null);
-  const [mousePos, setMousePos] = useState<{ x: number; y: number } | null>(null);
-  const [isInside, setIsInside] = useState(false);
+  const spotlightRef = useRef<HTMLDivElement | null>(null);
+  const beamRef = useRef<HTMLDivElement | null>(null);
+  const baseBgRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
+    let rafId: number;
+    let targetX = 0;
+    let targetY = 0;
+    let isInside = false;
+
     const handleMove = (e: MouseEvent) => {
       const section = sectionRef.current;
       if (!section) return;
@@ -33,18 +39,62 @@ export const HorcruxIntro: React.FC<HorcruxIntroProps> = ({ onScrollToWizards })
         e.clientY >= rect.top &&
         e.clientY <= rect.bottom
       ) {
-        setIsInside(true);
-        setMousePos({
-          x: e.clientX - rect.left,
-          y: e.clientY - rect.top
-        });
+        isInside = true;
+        targetX = e.clientX - rect.left;
+        targetY = e.clientY - rect.top;
       } else {
-        setIsInside(false);
+        isInside = false;
       }
     };
 
+    const updateSpotlight = () => {
+      const section = sectionRef.current;
+      const width = section?.clientWidth || 1;
+      const height = section?.clientHeight || 1;
+
+      if (baseBgRef.current) {
+        if (isInside) {
+          const shiftX = (targetX / width - 0.5) * -18;
+          const shiftY = (targetY / height - 0.5) * -14;
+          baseBgRef.current.style.transform = `scale(1.05) translate3d(${shiftX}px, ${shiftY}px, 0)`;
+        } else {
+          baseBgRef.current.style.transform = 'scale(1.02) translate3d(0, 0, 0)';
+        }
+      }
+
+      if (spotlightRef.current) {
+        if (isInside) {
+          spotlightRef.current.style.opacity = '1';
+          const shiftX = (targetX / width - 0.5) * -18;
+          const shiftY = (targetY / height - 0.5) * -14;
+          spotlightRef.current.style.transform = `scale(1.05) translate3d(${shiftX}px, ${shiftY}px, 0)`;
+          const mask = `radial-gradient(circle 420px at ${targetX}px ${targetY}px, rgba(0,0,0,1) 0%, rgba(0,0,0,0.85) 35%, rgba(0,0,0,0.2) 70%, transparent 100%)`;
+          spotlightRef.current.style.webkitMaskImage = mask;
+          spotlightRef.current.style.maskImage = mask;
+        } else {
+          spotlightRef.current.style.opacity = '0';
+        }
+      }
+
+      if (beamRef.current) {
+        if (isInside) {
+          beamRef.current.style.opacity = '1';
+          beamRef.current.style.background = `radial-gradient(circle 440px at ${targetX}px ${targetY}px, rgba(255, 230, 160, 0.26) 0%, rgba(32, 140, 85, 0.18) 42%, rgba(10, 45, 25, 0.08) 68%, transparent 85%)`;
+        } else {
+          beamRef.current.style.opacity = '0';
+        }
+      }
+
+      rafId = requestAnimationFrame(updateSpotlight);
+    };
+
     window.addEventListener('mousemove', handleMove, { passive: true });
-    return () => window.removeEventListener('mousemove', handleMove);
+    rafId = requestAnimationFrame(updateSpotlight);
+
+    return () => {
+      window.removeEventListener('mousemove', handleMove);
+      cancelAnimationFrame(rafId);
+    };
   }, []);
 
   const handleScrollClick = () => {
@@ -85,6 +135,7 @@ export const HorcruxIntro: React.FC<HorcruxIntroProps> = ({ onScrollToWizards })
     >
       {/* ═══ 1. AMBIENT SHADOWY SLYTHERIN COMMON ROOM (BASE LAYER) ═══ */}
       <div
+        ref={baseBgRef}
         style={{
           position: 'absolute',
           inset: 0,
@@ -92,10 +143,9 @@ export const HorcruxIntro: React.FC<HorcruxIntroProps> = ({ onScrollToWizards })
           backgroundPosition: 'center 38%',
           backgroundSize: 'cover',
           backgroundRepeat: 'no-repeat',
-          filter: 'brightness(0.2) saturate(1.05) contrast(1.15)',
-          transform: mousePos
-            ? `scale(1.04) translate3d(${(mousePos.x / (sectionRef.current?.clientWidth || 1) - 0.5) * -16}px, ${(mousePos.y / (sectionRef.current?.clientHeight || 1) - 0.5) * -12}px, 0)`
-            : 'scale(1.02)',
+          filter: 'brightness(0.38) saturate(1.1) contrast(1.1)',
+          opacity: 0.88,
+          transform: 'scale(1.02)',
           transition: 'transform 0.15s ease-out',
           zIndex: 0
         }}
@@ -104,6 +154,7 @@ export const HorcruxIntro: React.FC<HorcruxIntroProps> = ({ onScrollToWizards })
 
       {/* ═══ 2. DYNAMIC LUMOS SPOTLIGHT REVEAL (BRIGHT COMMON ROOM ILLUMINATED BY CURSOR) ═══ */}
       <div
+        ref={spotlightRef}
         style={{
           position: 'absolute',
           inset: 0,
@@ -111,35 +162,27 @@ export const HorcruxIntro: React.FC<HorcruxIntroProps> = ({ onScrollToWizards })
           backgroundPosition: 'center 38%',
           backgroundSize: 'cover',
           backgroundRepeat: 'no-repeat',
-          filter: 'brightness(1.18) saturate(1.25) contrast(1.2)',
-          transform: mousePos
-            ? `scale(1.04) translate3d(${(mousePos.x / (sectionRef.current?.clientWidth || 1) - 0.5) * -16}px, ${(mousePos.y / (sectionRef.current?.clientHeight || 1) - 0.5) * -12}px, 0)`
-            : 'scale(1.02)',
-          transition: 'transform 0.15s ease-out, opacity 0.25s ease',
-          WebkitMaskImage: mousePos && isInside
-            ? `radial-gradient(circle 420px at ${mousePos.x}px ${mousePos.y}px, rgba(0,0,0,1) 0%, rgba(0,0,0,0.85) 35%, rgba(0,0,0,0.25) 70%, transparent 100%)`
-            : 'radial-gradient(circle 460px at 50% 35%, rgba(0,0,0,0.7) 0%, transparent 80%)',
-          maskImage: mousePos && isInside
-            ? `radial-gradient(circle 420px at ${mousePos.x}px ${mousePos.y}px, rgba(0,0,0,1) 0%, rgba(0,0,0,0.85) 35%, rgba(0,0,0,0.25) 70%, transparent 100%)`
-            : 'radial-gradient(circle 460px at 50% 35%, rgba(0,0,0,0.7) 0%, transparent 80%)',
-          zIndex: 1,
-          pointerEvents: 'none'
+          filter: 'brightness(1.28) saturate(1.35) contrast(1.22)',
+          transform: 'scale(1.02)',
+          opacity: 0,
+          transition: 'opacity 0.25s ease',
+          pointerEvents: 'none',
+          zIndex: 1
         }}
         aria-hidden="true"
       />
 
       {/* ═══ 3. WAND LUMOS EMERALD & GOLDEN LIGHT BEAM FOLLOWING CURSOR ═══ */}
       <div
+        ref={beamRef}
         style={{
           position: 'absolute',
           inset: 0,
-          background: mousePos && isInside
-            ? `radial-gradient(circle 450px at ${mousePos.x}px ${mousePos.y}px, rgba(255, 230, 160, 0.28) 0%, rgba(32, 140, 85, 0.18) 42%, rgba(10, 45, 25, 0.08) 68%, transparent 85%)`
-            : 'none',
+          opacity: 0,
           mixBlendMode: 'screen',
           pointerEvents: 'none',
           zIndex: 2,
-          transition: 'background 0.08s ease-out'
+          transition: 'opacity 0.25s ease'
         }}
         aria-hidden="true"
       />
@@ -371,18 +414,20 @@ export const HorcruxIntro: React.FC<HorcruxIntroProps> = ({ onScrollToWizards })
           <h1
             className="fantasy-title"
             style={{
-              fontSize: 'clamp(3.8rem, 10vw, 8.4rem)',
+              fontFamily: "'HarryPotter', 'Harry P', var(--font-fantasy)",
+              fontSize: 'clamp(4.2rem, 11vw, 9.2rem)',
               margin: 0,
               padding: '0 0.4rem',
               display: 'inline-flex',
               alignItems: 'center',
-              gap: '0.2rem'
+              gap: '0.2rem',
+              letterSpacing: '0.06em'
             }}
           >
             <span>HORCRUX</span>
             <span
               style={{
-                fontSize: '0.7em',
+                fontSize: '0.65em',
                 color: 'var(--gold-bright)',
                 filter: 'drop-shadow(0 0 20px #ffd978)'
               }}

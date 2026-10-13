@@ -11,10 +11,14 @@ interface Sparkle {
 
 export const WandCursor: React.FC = () => {
   const [enabled, setEnabled] = useState(false);
-  const [pos, setPos] = useState({ x: -100, y: -100 });
   const [isHovering, setIsHovering] = useState(false);
   const [isClicking, setIsClicking] = useState(false);
   const [sparkles, setSparkles] = useState<Sparkle[]>([]);
+
+  const wandRef = useRef<HTMLDivElement | null>(null);
+  const auraRef = useRef<HTMLDivElement | null>(null);
+  const mouseCoordsRef = useRef({ x: -200, y: -200 });
+  const isHoveringRef = useRef(false);
   const sparkleIdRef = useRef(0);
 
   useEffect(() => {
@@ -42,15 +46,34 @@ export const WandCursor: React.FC = () => {
   useEffect(() => {
     if (!enabled) return;
 
+    let rafId: number;
+
     const handleMouseMove = (e: MouseEvent) => {
-      setPos({ x: e.clientX, y: e.clientY });
+      mouseCoordsRef.current = { x: e.clientX, y: e.clientY };
 
       // Check if mouse is hovering over interactive element
       const target = e.target as HTMLElement | null;
       if (target) {
-        const interactive = target.closest('a, button, [role="button"], input, textarea, select, .interactive-hover');
-        setIsHovering(Boolean(interactive));
+        const interactive = Boolean(
+          target.closest('a, button, [role="button"], input, textarea, select, .interactive-hover')
+        );
+        if (interactive !== isHoveringRef.current) {
+          isHoveringRef.current = interactive;
+          setIsHovering(interactive);
+        }
       }
+    };
+
+    const updateCursorPosition = () => {
+      const { x, y } = mouseCoordsRef.current;
+      if (wandRef.current) {
+        wandRef.current.style.transform = `translate3d(${x}px, ${y}px, 0)`;
+      }
+      if (auraRef.current) {
+        auraRef.current.style.left = `${x}px`;
+        auraRef.current.style.top = `${y}px`;
+      }
+      rafId = requestAnimationFrame(updateCursorPosition);
     };
 
     const handleMouseDown = (e: MouseEvent) => {
@@ -86,11 +109,13 @@ export const WandCursor: React.FC = () => {
     window.addEventListener('mousemove', handleMouseMove, { passive: true });
     window.addEventListener('mousedown', handleMouseDown);
     window.addEventListener('mouseup', handleMouseUp);
+    rafId = requestAnimationFrame(updateCursorPosition);
 
     return () => {
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('mousedown', handleMouseDown);
       window.removeEventListener('mouseup', handleMouseUp);
+      cancelAnimationFrame(rafId);
     };
   }, [enabled]);
 
@@ -109,18 +134,20 @@ export const WandCursor: React.FC = () => {
     <>
       {/* Lumos radial spotlight aura */}
       <div
+        ref={auraRef}
         className={`wand-lumos-aura ${isHovering ? 'hovering' : ''}`}
         style={{
-          left: `${pos.x}px`,
-          top: `${pos.y}px`
+          left: '-200px',
+          top: '-200px'
         }}
       />
 
       {/* Wand cursor element */}
       <div
+        ref={wandRef}
         className="custom-wand-container"
         style={{
-          transform: `translate3d(${pos.x}px, ${pos.y}px, 0)`
+          transform: 'translate3d(-200px, -200px, 0)'
         }}
       >
         <div
@@ -128,7 +155,7 @@ export const WandCursor: React.FC = () => {
         >
           <img
             src="/images/wand1.png"
-            alt="Wand Cursor"
+            alt=""
             draggable={false}
           />
         </div>

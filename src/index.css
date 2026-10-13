@@ -1,0 +1,420 @@
+/* =================================================================
+   TRIWIZATHON 2026 · HORCRUX DESIGN SYSTEM
+   Deep Emerald · Antique Gold · Fantasy Typography · Cinematic Lighting
+   ================================================================= */
+
+@font-face {
+  font-family: 'HarryPotter';
+  src: url('/fonts/HarryPotter.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  /* Antique Gold Spectrum */
+  --gold-primary: #d4af37;
+  --gold-bright: #ffd978;
+  --gold-light: #f5e5a6;
+  --gold-mid: #c5a059;
+  --gold-dark: #8a6d2b;
+  --gold-glow: rgba(212, 175, 55, 0.45);
+  --gold-glow-intense: rgba(255, 217, 120, 0.7);
+  --gold-border-subtle: rgba(197, 160, 89, 0.25);
+  --gold-border-bright: rgba(212, 175, 55, 0.65);
+
+  /* Deep Emerald & Near-Black Dungeon Atmosphere */
+  --bg-abyss: #020704;
+  --bg-emerald-deep: #040e08;
+  --bg-emerald-dungeon: #071710;
+  --bg-emerald-chamber: #0b2318;
+  --emerald-accent: #195239;
+  --emerald-glow: rgba(18, 76, 50, 0.55);
+  --emerald-beam: rgba(29, 117, 78, 0.3);
+
+  /* Text & Accents */
+  --text-parchment: #ded8c7;
+  --text-silver: #b5c4bc;
+  --text-muted: #74897f;
+  --text-dim: #44594f;
+
+  /* Card Glassmorphism */
+  --card-glass: rgba(5, 16, 11, 0.78);
+  --card-glass-hover: rgba(9, 27, 18, 0.92);
+
+  /* Fonts */
+  --font-fantasy: 'HarryPotter', 'Cinzel Decorative', Georgia, serif;
+  --font-display: 'Cinzel', serif;
+  --font-serif: 'Cormorant Garamond', Georgia, serif;
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+/* Reset & Base Setup */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+  background-color: var(--bg-abyss);
+  color: var(--text-parchment);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  min-height: 100vh;
+  background: var(--bg-abyss);
+  overflow-x: hidden;
+  position: relative;
+}
+
+/* Desktop Wand Cursor Mode */
+@media (pointer: fine) and (hover: hover) {
+  body.wand-cursor-enabled,
+  body.wand-cursor-enabled * {
+    cursor: none;
+  }
+
+  /* Preserve native accessible cursors on inputs and form controls */
+  body.wand-cursor-enabled input,
+  body.wand-cursor-enabled textarea,
+  body.wand-cursor-enabled select,
+  body.wand-cursor-enabled [contenteditable="true"] {
+    cursor: text !important;
+  }
+}
+
+/* Fallback for Touch / Coarse Pointers */
+@media (pointer: coarse), (hover: none) {
+  body {
+    cursor: auto !important;
+  }
+  .custom-wand-element {
+    display: none !important;
+  }
+}
+
+/* =================================================================
+   WAND CURSOR STYLING
+   ================================================================= */
+.custom-wand-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+  z-index: 999999;
+  will-change: transform;
+}
+
+.custom-wand-element {
+  position: absolute;
+  width: 68px;
+  height: 68px;
+  top: -4px;
+  left: -34px;
+  transform-origin: 34px 4px;
+  transform: rotate(-32deg);
+  transition: transform 0.18s cubic-bezier(0.2, 0.8, 0.4, 1), filter 0.2s ease;
+  pointer-events: none;
+  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.8)) drop-shadow(0 0 10px rgba(212, 175, 55, 0.4));
+}
+
+.custom-wand-element.hovering {
+  transform: rotate(0deg) scale(1.12);
+  filter: drop-shadow(0 2px 10px rgba(0, 0, 0, 0.9)) drop-shadow(0 0 16px rgba(255, 217, 120, 0.85));
+}
+
+.custom-wand-element.clicking {
+  transform: rotate(-15deg) scale(0.95);
+}
+
+.custom-wand-element img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+/* Wand Tip Lumos Spotlight */
+.wand-lumos-aura {
+  position: fixed;
+  width: 180px;
+  height: 180px;
+  border-radius: 50%;
+  pointer-events: none;
+  background: radial-gradient(
+    circle,
+    rgba(255, 230, 160, 0.22) 0%,
+    rgba(212, 175, 55, 0.12) 35%,
+    rgba(25, 90, 55, 0.08) 60%,
+    transparent 80%
+  );
+  transform: translate(-50%, -50%);
+  z-index: 999998;
+  mix-blend-mode: screen;
+  transition: opacity 0.3s ease, width 0.3s ease, height 0.3s ease;
+}
+
+.wand-lumos-aura.hovering {
+  width: 240px;
+  height: 240px;
+  background: radial-gradient(
+    circle,
+    rgba(255, 235, 175, 0.32) 0%,
+    rgba(212, 175, 55, 0.2) 40%,
+    rgba(32, 120, 75, 0.12) 65%,
+    transparent 85%
+  );
+}
+
+/* Wand Tip Sparkle Burst */
+.wand-sparkle {
+  position: fixed;
+  pointer-events: none;
+  border-radius: 50%;
+  background: #ffeaa7;
+  box-shadow: 0 0 8px #ffd978, 0 0 16px #d4af37;
+  z-index: 999999;
+  animation: sparkle-fade 0.7s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
+
+@keyframes sparkle-fade {
+  0% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(0.1);
+    opacity: 0;
+  }
+}
+
+/* =================================================================
+   PARTICLES CANVAS
+   ================================================================= */
+.magical-particles-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* =================================================================
+   CINEMATIC SECTION BACKGROUNDS
+   ================================================================= */
+.cinematic-vignette {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse 85% 75% at 50% 50%,
+    transparent 20%,
+    rgba(2, 7, 4, 0.65) 60%,
+    rgba(2, 7, 4, 0.96) 95%
+  );
+  z-index: 1;
+}
+
+.cinematic-emerald-glow {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(60% 50% at 50% 40%, rgba(18, 76, 50, 0.32), transparent 70%),
+    radial-gradient(45% 40% at 20% 70%, rgba(9, 45, 30, 0.3), transparent 70%),
+    radial-gradient(45% 40% at 80% 65%, rgba(9, 45, 30, 0.3), transparent 70%);
+  mix-blend-mode: screen;
+  z-index: 1;
+}
+
+/* =================================================================
+   HARRY POTTER DISPLAY HEADING STYLING
+   ================================================================= */
+.fantasy-title {
+  font-family: var(--font-fantasy);
+  letter-spacing: 0.08em;
+  line-height: 1.05;
+  background: linear-gradient(
+    180deg,
+    #fff2b8 0%,
+    #ffd978 28%,
+    #d4af37 60%,
+    #a8842c 85%,
+    #694d13 100%
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 35px rgba(212, 175, 55, 0.45)) drop-shadow(0 6px 14px rgba(0, 0, 0, 0.95));
+  position: relative;
+  display: inline-block;
+  user-select: none;
+  transition: filter 0.4s ease;
+}
+
+.fantasy-title:hover {
+  filter: drop-shadow(0 0 50px rgba(255, 217, 120, 0.7)) drop-shadow(0 8px 20px rgba(0, 0, 0, 0.98));
+}
+
+/* Title Backlight Halo */
+.title-backlight {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 140%;
+  height: 160%;
+  background: radial-gradient(
+    ellipse 50% 45% at 50% 50%,
+    rgba(212, 175, 55, 0.16) 0%,
+    rgba(18, 76, 50, 0.18) 45%,
+    transparent 75%
+  );
+  filter: blur(28px);
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* =================================================================
+   ANTIQUE GOLD BUTTONS & PILLS
+   ================================================================= */
+.gold-pill-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.8rem 1.85rem;
+  background: rgba(4, 15, 9, 0.72);
+  border: 1px solid var(--gold-border-bright);
+  border-radius: 9999px;
+  color: var(--gold-light);
+  font-family: var(--font-display);
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  text-decoration: none;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6), inset 0 0 12px rgba(212, 175, 55, 0.08);
+  transition: all 0.3s cubic-bezier(0.2, 0.8, 0.3, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.gold-pill-button::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 217, 120, 0.15) 50%,
+    transparent 100%
+  );
+  transform: translateX(-100%);
+  transition: transform 0.6s ease;
+}
+
+.gold-pill-button:hover {
+  background: rgba(9, 32, 20, 0.9);
+  border-color: var(--gold-bright);
+  color: #fff;
+  box-shadow: 0 0 24px var(--gold-glow), 0 8px 30px rgba(0, 0, 0, 0.8), inset 0 0 16px rgba(212, 175, 55, 0.22);
+  transform: translateY(-2px);
+}
+
+.gold-pill-button:hover::before {
+  transform: translateX(100%);
+}
+
+.gold-pill-secondary {
+  background: rgba(2, 8, 5, 0.5);
+  border: 1px solid var(--gold-border-subtle);
+  color: var(--text-silver);
+}
+
+.gold-pill-secondary:hover {
+  border-color: var(--gold-mid);
+  color: var(--gold-light);
+}
+
+/* =================================================================
+   ANIMATIONS & REDUCED MOTION
+   ================================================================= */
+@keyframes float-gentle {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-7px);
+  }
+}
+
+@keyframes pulse-subtle {
+  0%, 100% {
+    opacity: 0.75;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.03);
+  }
+}
+
+@keyframes scroll-bounce {
+  0%, 100% {
+    transform: translateY(0);
+    opacity: 0.8;
+  }
+  50% {
+    transform: translateY(8px);
+    opacity: 1;
+  }
+}
+
+@keyframes sparkle-fade {
+  0% {
+    opacity: 0;
+    transform: scale(0) translateY(0);
+  }
+  30% {
+    opacity: 1;
+    transform: scale(1.4) translateY(-6px);
+  }
+  70% {
+    opacity: 0.9;
+    transform: scale(1) translateY(-14px);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.2) translateY(-24px);
+  }
+}
+
+.animate-float {
+  animation: float-gentle 4.5s ease-in-out infinite;
+}
+
+.animate-scroll-indicator {
+  animation: scroll-bounce 2.2s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .animate-float,
+  .animate-scroll-indicator {
+    animation: none !important;
+  }
+}

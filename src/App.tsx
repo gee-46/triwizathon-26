@@ -1,14 +1,17 @@
-import React, { useState } from 'react';
+import React, { Suspense, lazy, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { HogwartsCinematicIntro } from './components/HogwartsCinematicIntro';
 import { HorcruxIntro } from './components/HorcruxIntro';
 import { WizardMemberIntro } from './components/WizardMemberIntro';
+import { Link, Route, Routes } from 'react-router-dom';
+const ProjectsHub = lazy(() => import('./pages/ProjectsHub'));
+const ProjectDetail = lazy(() => import('./pages/ProjectDetail'));
 import { ArchivalFooter } from './components/ArchivalFooter';
 import { WandCursor } from './components/WandCursor';
 import { TEAM_MEMBERS } from './data/teamMembers';
 import { Film } from 'lucide-react';
 
-export const App: React.FC = () => {
+const Home: React.FC = () => {
   const [showCinematicIntro, setShowCinematicIntro] = useState(true);
 
   const handleCinematicComplete = () => {
@@ -111,6 +114,16 @@ export const App: React.FC = () => {
         {TEAM_MEMBERS.map((member) => (
           <WizardMemberIntro key={member.id} member={member} />
         ))}
+
+        <section aria-label="Enchanted artifacts" style={{ padding: '5rem 1.5rem', textAlign: 'center', background: 'var(--bg-emerald-deep)', borderTop: '1px solid rgba(197, 160, 89, 0.15)' }}>
+          <h2 style={{ fontFamily: 'var(--font-display)', color: 'var(--gold-light)', letterSpacing: '0.12em', fontSize: 'clamp(1.6rem, 3vw, 2.4rem)' }}>ENCHANTED ARTIFACTS</h2>
+          <p style={{ fontFamily: 'var(--font-sans)', color: 'var(--text-silver)', maxWidth: 560, margin: '1rem auto 1.8rem', lineHeight: 1.6 }}>
+            Six projects from the HORCRUX archive, including live gesture-volume and harbor-queue modules.
+          </p>
+          <Link to="/projects" className="interactive-hover" style={{ padding: '0.65rem 1.6rem', border: '1px solid var(--gold-border-bright)', borderRadius: 9999, color: 'var(--gold-bright)', fontFamily: 'var(--font-display)', fontSize: '0.78rem', letterSpacing: '0.18em', textDecoration: 'none' }}>
+            OPEN THE ARCHIVE
+          </Link>
+        </section>
       </main>
 
       {/* Archival Footer */}
@@ -118,5 +131,16 @@ export const App: React.FC = () => {
     </div>
   );
 };
+
+export const App: React.FC = () => (
+  <Suspense fallback={<div role="status" style={{ minHeight: '100vh', background: 'var(--bg-abyss)', color: 'var(--gold-mid)', display: 'grid', placeItems: 'center', fontFamily: 'var(--font-display)', letterSpacing: '0.2em' }}>LOADING…</div>}>
+  <Routes>
+    <Route path="/" element={<Home />} />
+    <Route path="/projects" element={<ProjectsHub />} />
+    <Route path="/projects/:slug" element={<ProjectDetail />} />
+    <Route path="*" element={<ProjectsHub />} />
+  </Routes>
+  </Suspense>
+);
 
 export default App;

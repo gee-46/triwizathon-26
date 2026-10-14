@@ -1,34 +1,77 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
-import { PROJECTS } from '../data/projects';
-import { Page, card, pill } from './ui';
+import { useNavigate } from 'react-router-dom';
+import { EnchantedArchive } from '../components/archive/EnchantedArchive';
+import { ArrowLeft } from 'lucide-react';
 
-export const ProjectsHub: React.FC = () => (
-  <Page title="Enchanted Artifacts" kicker="THE ARCHIVE">
-    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.4rem' }}>
-      {PROJECTS.map((p) => (
-        <Link key={p.slug} to={`/projects/${p.slug}`} style={{ ...card, textDecoration: 'none', display: 'block' }}>
-          <span style={{ ...pill, color: p.integration === 'live' ? 'var(--gold-bright)' : 'var(--text-silver)' }}>
-            {p.integration === 'live' ? 'LIVE DEMO' : 'SHOWCASE'}
-          </span>
-          <h2
-            style={{
-              fontFamily: 'var(--font-display)',
-              color: 'var(--gold-light)',
-              fontSize: '1.2rem',
-              letterSpacing: '0.1em',
-              margin: '0.9rem 0 0.4rem'
-            }}
-          >
-            {p.name}
-          </h2>
-          <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.88rem', color: 'var(--text-silver)', lineHeight: 1.6 }}>
-            {p.tagline}
-          </p>
-        </Link>
-      ))}
+export const ProjectsHub: React.FC = () => {
+  const navigate = useNavigate();
+
+  const handleExploreProject = (slug: string) => {
+    navigate(`/projects/${slug}`);
+  };
+
+  return (
+    <div
+      className="projects-hub-page"
+      style={{
+        position: 'relative',
+        width: '100%',
+        minHeight: '100vh',
+        backgroundColor: 'var(--bg-abyss)'
+      }}
+    >
+      {/* Top Floating Return to Home Button */}
+      <div
+        style={{
+          position: 'absolute',
+          top: '1.75rem',
+          left: '2rem',
+          zIndex: 100
+        }}
+      >
+        <button
+          type="button"
+          onClick={() => navigate('/')}
+          aria-label="Return to Horcrux Team Sanctuary"
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '0.55rem',
+            padding: '0.45rem 1.1rem',
+            background: 'rgba(3, 11, 7, 0.82)',
+            border: '1px solid var(--gold-border-subtle)',
+            borderRadius: '9999px',
+            color: 'var(--gold-bright)',
+            fontFamily: 'var(--font-display)',
+            fontSize: '0.72rem',
+            fontWeight: 800,
+            letterSpacing: '0.16em',
+            textTransform: 'uppercase',
+            cursor: 'pointer',
+            backdropFilter: 'blur(12px)',
+            boxShadow: '0 4px 18px rgba(0, 0, 0, 0.6)',
+            transition: 'all 0.2s ease'
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.transform = 'translateX(-2px)';
+            e.currentTarget.style.borderColor = 'var(--gold-bright)';
+            e.currentTarget.style.background = 'rgba(212, 175, 55, 0.15)';
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.transform = 'translateX(0)';
+            e.currentTarget.style.borderColor = 'var(--gold-border-subtle)';
+            e.currentTarget.style.background = 'rgba(3, 11, 7, 0.82)';
+          }}
+        >
+          <ArrowLeft size={14} />
+          <span>SANCTUARY</span>
+        </button>
+      </div>
+
+      {/* Cinematic Enchanted Archive: The Pensieve */}
+      <EnchantedArchive onExploreProject={handleExploreProject} />
     </div>
-  </Page>
-);
+  );
+};
 
 export default ProjectsHub;

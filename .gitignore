@@ -1,4 +1,4 @@
-﻿# Logs
+# Logs
 logs
 *.log
 npm-debug.log*
@@ -42,3 +42,4 @@ reference_screen_recording.mp4
 reference_screenshot.png
 
 .vite
+.vercel
